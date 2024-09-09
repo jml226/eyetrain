@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시력 검사</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .instructions {
+            margin-bottom: 20px;
+        }
+        .button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+        .number-image {
+            width: 100px;
+            height: auto;
+            margin: 20px auto; /* 이미지 가운데 정렬 */
+            cursor: pointer;
+            display: block; /* 이미지가 세로로 정렬되게 함 */
+        }
+        .scroll-container {
+            height: 400px; /* 제한된 높이 */
+            overflow-y: scroll; /* 세로 스크롤 가능하게 설정 */
+            margin-top: 20px;
+            border: 1px solid #ddd; /* 컨테이너 테두리 추가 */
+        }
+    </style>
+</head>
+<body>
+
+    <div id="landingPage" class="container">
+        <h1>노안 테스트</h1>
+        <p class="instructions">화면의 이미지 테두리가 신용카드 사이즈와 일치하도록 화면을 두 손가락으로 확대 혹은 축소해주세요.<br>
+        휴대폰을 40cm 거리에 위치시켜 주세요.</p>
+        <button class="button" onclick="startTest()">시작</button>
+    </div>
+
+    <div id="testPage" class="container hidden">
+        <p>스크롤 하면서 숫자를 보세요. 인식할 수 있는 마지막 숫자를 클릭하세요.</p>
+        <div class="scroll-container">
+            <img src="1.jpg" class="number-image" alt="85" onclick="selectImage(85)">
+            <img src="2.jpg" class="number-image" alt="75" onclick="selectImage(75)">
+            <img src="3.jpg" class="number-image" alt="65" onclick="selectImage(65)">
+            <img src="4.jpg" class="number-image" alt="57" onclick="selectImage(57)">
+            <img src="5.jpg" class="number-image" alt="50" onclick="selectImage(50)">
+            <img src="6.jpg" class="number-image" alt="45" onclick="selectImage(45)">
+            <img src="7.jpg" class="number-image" alt="40" onclick="selectImage(40)">
+            <img src="8.jpg" class="number-image" alt="30" onclick="selectImage(30)">
+            <img src="9.jpg" class="number-image" alt="25" onclick="selectImage(25)">
+        </div>
+    </div>
+
+    <div id="birthYearPage" class="container hidden">
+        <p>태어난 해를 입력해 주세요.</p>
+        <input type="number" id="birthYear" placeholder="예: 1980">
+        <button class="button" onclick="calculateResult()">결과 확인</button>
+    </div>
+
+    <div id="resultPage" class="container hidden">
+        <p id="resultText"></p>
+        <p id="additionalAdvice"></p>
+
+        <h2>서비스 설명</h2>
+        <p>잠시만요! 독일 SCI급 안과학회 공식 학술지에서 인정받은 연구 결과를 바탕으로 개발된 시각 훈련 프로그램을 소개합니다.</p>
+        <p>하루 30분, 스마트폰으로 집에서도 쉽게 노안을 예방하고 개선할 수 있습니다. 간단한 훈련으로 눈의 피로를 줄이고 시력을 보호하세요.</p>
+        <p>지금 연락처를 등록하시면, 2만 원 상당의 2주 무료 이용권을 드립니다. 건강한 눈을 위한 첫걸음, 지금 시작해 보세요!</p>
+
+        <input type="text" id="contactInfo" placeholder="연락처를 입력해주세요">
+        <div>
+            <input type="checkbox" id="marketingConsent">
+            <label for="marketingConsent">무료 이용권 받기 (마케팅 정보 수신 동의)</label>
+        </div>
+        <button class="button" onclick="submitForm()">무료 이용권 받기</button>
+    </div>
+
+    <div id="thankYouPage" class="container hidden">
+        <h1>2주 무료 이용권 등록, 감사합니다!</h1>
+        <p>훈련 앱이 완성되는 대로 빠르게 연락드리겠습니다.</p>
+    </div>
+
+    <script>
+        let eyeAge = 85; // 기본적으로 가장 큰 이미지를 선택한 경우로 설정
+
+        function startTest() {
+            document.getElementById("landingPage").classList.add("hidden");
+            document.getElementById("testPage").classList.remove("hidden");
+        }
+
+        function selectImage(selectedAge) {
+            eyeAge = selectedAge; // 선택된 이미지에 해당하는 나이를 저장
+            document.getElementById("testPage").classList.add("hidden");
+            document.getElementById("birthYearPage").classList.remove("hidden");
+        }
+
+        function calculateResult() {
+            const birthYear = document.getElementById("birthYear").value;
+            const currentYear = new Date().getFullYear();
+            const actualAge = currentYear - birthYear;
+            
+            let resultText = "당신의 안구 나이는 " + eyeAge + "살 입니다.";
+            let additionalAdvice = "";
+
+            if (actualAge < eyeAge) {
+                additionalAdvice = "실제 나이보다 " + (eyeAge - actualAge) + "살 더 많습니다. 눈 건강에 각별한 주의가 필요합니다.";
+            } else if (eyeAge > 45) {
+                additionalAdvice = "노안 경고! 지금부터 꾸준한 관리로 시력 악화를 예방하세요.";
+            } else if (actualAge > eyeAge) {
+                additionalAdvice = "축하합니다! 건강한 눈을 가지고 계시네요. 앞으로도 잘 관리하세요!";
+            }
+
+            document.getElementById("resultText").innerText = resultText;
+            document.getElementById("additionalAdvice").innerText = additionalAdvice;
+            document.getElementById("birthYearPage").classList.add("hidden");
+            document.getElementById("resultPage").classList.remove("hidden");
+        }
+
+        function submitForm() {
+            const contactInfo = document.getElementById("contactInfo").value;
+            const marketingConsent = document.getElementById("marketingConsent").checked;
+
+            if (!contactInfo) {
+                alert("연락처를 입력해주세요.");
+                return;
+            }
+
+            if (!marketingConsent) {
+                alert("마케팅 정보 수신에 동의해야 무료 이용권을 받을 수 있습니다.");
+                return;
+            }
+
+            document.getElementById("resultPage").classList.add("hidden");
+            document.getElementById("thankYouPage").classList.remove("hidden");
+        }
+    </script>
+
+</body>
+</html>
