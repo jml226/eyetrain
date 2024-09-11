@@ -156,6 +156,7 @@
         function submitForm() {
             const contactInfo = document.getElementById("contactInfo").value;
             const marketingConsent = document.getElementById("marketingConsent").checked;
+            const birthYear = document.getElementById("birthYear").value; // 여기서 birthYear 값을 가져옴
 
             if (!contactInfo) {
                 alert("연락처를 입력해주세요.");
