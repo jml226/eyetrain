@@ -167,8 +167,24 @@
                 return;
             }
 
-            document.getElementById("resultPage").classList.add("hidden");
-            document.getElementById("thankYouPage").classList.remove("hidden");
+            // Google Apps Script로 데이터 전송
+            fetch('https://script.google.com/macros/s/AKfycbzX-a8EiOo7uzqU-reeZbIQfcJ3StPLIeKHHaJmxJPwPImyTsdaGmtnXFq8zQHDm3ZBng/exec', {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `image=${eyeAge}&birthYear=${birthYear}&phoneNumber=${contactInfo}`,
+            })
+            .then(response => response.text())
+            .then(data => {
+                console.log('Success:', data);
+                document.getElementById("resultPage").classList.add("hidden");
+                document.getElementById("thankYouPage").classList.remove("hidden");
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
         }
     </script>
 
