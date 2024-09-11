@@ -14,11 +14,19 @@
         .container {
             margin-top: 50px;
         }
+        /* 폰트 크기 설정 */
+        h1 {
+            font-size: 2rem; /* 기존 대비 2배 */
+        }
         .instructions {
-            margin-bottom: 20px;
+            font-size: 1.5rem; /* 기존 대비 3배 */
+        }
+        .additional-info {
+            font-size: 1rem; /* 기존 대비 2배 */
         }
         .button {
             padding: 10px 20px;
+            font-size: 1.1rem; /* 기존 대비 18% */
             background-color: #007BFF;
             color: white;
             border: none;
@@ -41,19 +49,30 @@
             margin-top: 20px;
             border: 1px solid #ddd; /* 컨테이너 테두리 추가 */
         }
+        .result-text {
+            font-size: 1.8rem; /* 기존 대비 3배 */
+        }
+        .service-info {
+            font-size: 1.2rem; /* 기존 대비 2배 */
+        }
     </style>
 </head>
 <body>
 
+    <!-- Landing Page -->
     <div id="landingPage" class="container">
         <h1>노안 테스트</h1>
-        <p class="instructions">화면의 이미지 테두리가 신용카드 사이즈와 일치하도록 화면을 두 손가락으로 확대 혹은 축소해주세요.<br>
-        휴대폰을 40cm 거리에 위치시켜 주세요.</p>
+        <p class="instructions">당신의 안구 나이는 몇 살일까요?</p>
+        <p class="additional-info">준비사항:<br>
+        1. 근시가 있는 분들은 거실의 TV가 선명히 보이도록 안경을 착용해 주세요.<br>
+        (누진다초점 렌즈는 불가능)<br>
+        2. 휴대폰을 40cm 거리에 위치시켜 주세요.</p>
         <button class="button" onclick="startTest()">시작</button>
     </div>
 
+    <!-- Test Page -->
     <div id="testPage" class="container hidden">
-        <p>스크롤 하면서 숫자를 보세요. 인식할 수 있는 마지막 숫자를 클릭하세요.</p>
+        <p class="instructions">스크롤 하면서 숫자를 보세요.<br> 인식할 수 있는 마지막 숫자를 클릭하세요.</p>
         <div class="scroll-container">
             <img src="1.jpg" class="number-image" alt="85" onclick="selectImage(85)">
             <img src="2.jpg" class="number-image" alt="75" onclick="selectImage(75)">
@@ -67,20 +86,22 @@
         </div>
     </div>
 
+    <!-- Birth Year Page -->
     <div id="birthYearPage" class="container hidden">
-        <p>태어난 해를 입력해 주세요.</p>
+        <p class="instructions">태어난 해를 입력해 주세요.</p>
         <input type="number" id="birthYear" placeholder="예: 1980">
         <button class="button" onclick="calculateResult()">결과 확인</button>
     </div>
 
+    <!-- Result Page -->
     <div id="resultPage" class="container hidden">
-        <p id="resultText"></p>
-        <p id="additionalAdvice"></p>
+        <p class="result-text" id="resultText"></p>
+        <p class="result-text" id="additionalAdvice"></p>
 
-        <h2>서비스 설명</h2>
-        <p>잠시만요! 독일 SCI급 안과학회 공식 학술지에서 인정받은 연구 결과를 바탕으로 개발된 시각 훈련 프로그램을 소개합니다.</p>
-        <p>하루 30분, 스마트폰으로 집에서도 쉽게 노안을 예방하고 개선할 수 있습니다. 간단한 훈련으로 눈의 피로를 줄이고 시력을 보호하세요.</p>
-        <p>지금 연락처를 등록하시면, 2만 원 상당의 2주 무료 이용권을 드립니다. 건강한 눈을 위한 첫걸음, 지금 시작해 보세요!</p>
+        <h2 class="result-text">서비스 설명</h2>
+        <p class="service-info">잠시만요! 독일 SCI급 안과학회 공식 학술지에서 인정받은 연구 결과를 바탕으로 개발된 시각 훈련 프로그램을 소개합니다.</p>
+        <p class="service-info">하루 30분, 스마트폰으로 집에서도 쉽게 노안을 예방하고 개선할 수 있습니다. 간단한 훈련으로 눈의 피로를 줄이고 시력을 보호하세요.</p>
+        <p class="service-info">지금 연락처를 등록하시면, 2만 원 상당의 2주 무료 이용권을 드립니다. 건강한 눈을 위한 첫걸음, 지금 시작해 보세요!</p>
 
         <input type="text" id="contactInfo" placeholder="연락처를 입력해주세요">
         <div>
@@ -90,9 +111,10 @@
         <button class="button" onclick="submitForm()">무료 이용권 받기</button>
     </div>
 
+    <!-- Thank You Page -->
     <div id="thankYouPage" class="container hidden">
-        <h1>2주 무료 이용권 등록, 감사합니다!</h1>
-        <p>훈련 앱이 완성되는 대로 빠르게 연락드리겠습니다.</p>
+        <p class="result-text">2주 무료 이용권 등록, 감사합니다!</p>
+        <p class="result-text">훈련 앱이 완성되는 대로 빠르게 연락드리겠습니다.</p>
     </div>
 
     <script>
@@ -131,40 +153,23 @@
             document.getElementById("resultPage").classList.remove("hidden");
         }
 
-    function submitForm() {
-        const contactInfo = document.getElementById("contactInfo").value;
-        const marketingConsent = document.getElementById("marketingConsent").checked;
-        const birthYear = document.getElementById("birthYear").value;
+        function submitForm() {
+            const contactInfo = document.getElementById("contactInfo").value;
+            const marketingConsent = document.getElementById("marketingConsent").checked;
 
-        if (!contactInfo) {
-            alert("연락처를 입력해주세요.");
-            return;
-        }
+            if (!contactInfo) {
+                alert("연락처를 입력해주세요.");
+                return;
+            }
 
-        if (!marketingConsent) {
-            alert("마케팅 정보 수신에 동의해야 무료 이용권을 받을 수 있습니다.");
-            return;
-        }
+            if (!marketingConsent) {
+                alert("마케팅 정보 수신에 동의해야 무료 이용권을 받을 수 있습니다.");
+                return;
+            }
 
-        // Google Apps Script로 데이터 전송
-        fetch('https://script.google.com/macros/s/AKfycbzX-a8EiOo7uzqU-reeZbIQfcJ3StPLIeKHHaJmxJPwPImyTsdaGmtnXFq8zQHDm3ZBng/exec', {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `image=${eyeAge}&birthYear=${birthYear}&phoneNumber=${contactInfo}`,
-        })
-        .then(response => response.text())
-        .then(data => {
-            console.log('Success:', data);
             document.getElementById("resultPage").classList.add("hidden");
             document.getElementById("thankYouPage").classList.remove("hidden");
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
-    }
+        }
     </script>
 
 </body>
