@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Dynamic Eye Distance Estimation</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
+    <style>
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        video, canvas { position: absolute; transform: scaleX(-1); }
+        #distance { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); font-size: 28px; font-weight: bold; color: white; background-color: black; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <video id="inputVideo" autoplay></video>
+    <canvas id="outputCanvas"></canvas>
+    <div id="distance">Distance: N/A</div>
+    <script>
+        const videoElement = document.getElementById('inputVideo');
+        const canvasElement = document.getElementById('outputCanvas');
+        const canvasCtx = canvasElement.getContext('2d');
+        const distanceElement = document.getElementById('distance');
+        
+        // Camera setup
+        const startCamera = async () => {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+            videoElement.srcObject = stream;
+        };
+        startCamera();
+
+        const faceMesh = new FaceMesh({ locateFile: (file) => {
+            return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+        }});
+        
+        faceMesh.setOptions({
+            maxNumFaces: 1,
+            refineLandmarks: true,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5
+        });
+
+        faceMesh.onResults(onResults);
+
+        // MediaPipe Camera Utility
+        const camera = new Camera(videoElement, {
+            onFrame: async () => {
+                await faceMesh.send({image: videoElement});
+            },
+            width: 640,
+            height: 480
+        });
+        camera.start();
+
+        let previousDistance = null;
+        const SMOOTHING_FACTOR = 0.9;
+        let averageEyeDistanceMM = null;
+
+        function onResults(results) {
+            // Set canvas dimensions
+            canvasElement.width = videoElement.videoWidth;
+            canvasElement.height = videoElement.videoHeight;
+            
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            canvasCtx.drawImage(
+                results.image, 0, 0, canvasElement.width, canvasElement.height);
+
+            if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+                const landmarks = results.multiFaceLandmarks[0];
+                const leftEyePupil = landmarks[468]; // Index for left eye pupil
+                const rightEyePupil = landmarks[473]; // Index for right eye pupil
+                
+                // Draw landmarks for visualization
+                canvasCtx.beginPath();
+                canvasCtx.arc(leftEyePupil.x * canvasElement.width, leftEyePupil.y * canvasElement.height, 5, 0, 2 * Math.PI);
+                canvasCtx.arc(rightEyePupil.x * canvasElement.width, rightEyePupil.y * canvasElement.height, 5, 0, 2 * Math.PI);
+                canvasCtx.fillStyle = 'blue';
+                canvasCtx.fill();
+
+                // Calculate distance between eyes in pixels
+                const deltaX = (leftEyePupil.x - rightEyePupil.x) * canvasElement.width;
+                const deltaY = (leftEyePupil.y - rightEyePupil.y) * canvasElement.height;
+                const eyeDistancePixels = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+                // Estimate average eye distance in mm if not set yet
+                if (!averageEyeDistanceMM) {
+                    const KNOWN_DISTANCE_MM = 500; // Example known distance from the camera in mm
+                    const FOCAL_LENGTH = 500; // Arbitrary focal length value for estimation
+                    averageEyeDistanceMM = (eyeDistancePixels * KNOWN_DISTANCE_MM) / FOCAL_LENGTH;
+                }
+
+                // Estimate distance from camera (rough estimation)
+                let distanceMM = (500 * averageEyeDistanceMM) / eyeDistancePixels;
+                let distanceCM = distanceMM / 10;
+
+                // Smooth distance changes
+                if (previousDistance !== null) {
+                    distanceCM = previousDistance * SMOOTHING_FACTOR + distanceCM * (1 - SMOOTHING_FACTOR);
+                }
+                previousDistance = distanceCM;
+
+                // Update distance display
+                let eyeDistanceMM = (distanceMM / 500) * eyeDistancePixels;
+                distanceElement.innerText = `Distance: ${distanceCM.toFixed(2)} cm
+Eye Distance: ${eyeDistanceMM.toFixed(2)} mm`;
+            }
+
+            canvasCtx.restore();
+        }
+    </script>
+</body>
+</html>
